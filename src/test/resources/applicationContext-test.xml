@@ -1,0 +1,75 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/context 
+http://www.springframework.org/schema/context/spring-context-3.0.xsd
+http://camel.apache.org/schema/spring
+http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+	<context:annotation-config />
+	<!-- Create actor system -->
+	<bean id="actorSystemName" class="java.lang.String" >
+		<constructor-arg value="actorSystem" />
+	</bean>
+	<bean id="actorSystem" class="akka.actor.ActorSystem" factory-method="create">
+		<constructor-arg ref="actorSystemName" />
+	</bean>
+	
+	<bean id="personProducerActorName" class="java.lang.String">
+		<constructor-arg value="personProducer" />
+	</bean>
+	
+	<bean id="personProducerTimeout" class="java.lang.Long">
+		<constructor-arg value="30" />
+	</bean>
+	
+	<!-- <context:component-scan base-package="com.example.proxy.impl"/> -->
+	<bean id="personProxy" class="com.example.akka.producer.proxy.impl.PersonProxyImpl" init-method="init"/>
+	<!-- HikariCP configuration -->
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<property name="maximumPoolSize" value="10" />
+		<property name="minimumPoolSize" value="2" />
+		<property name="dataSourceClassName"
+			value="com.mysql.jdbc.jdbc2.optional.MysqlDataSource" />
+		<property name="dataSourceProperties">
+			<props>
+				<prop key="portNumber">3306</prop>
+				<prop key="serverName">localhost</prop>
+				<prop key="user">root</prop>
+				<prop key="databaseName">test</prop>
+				<prop key="password">root</prop>
+			</props>
+		</property>
+		<property name="poolName" value="springHikariCP" />
+	</bean>
+
+	<bean id="mainDataSource" class="com.zaxxer.hikari.HikariDataSource">
+		<constructor-arg ref="hikariConfig" />
+	</bean>
+	<!-- <bean id="mainDataSource" class="com.zaxxer.hikari.HikariDataSource"
+		destroy-method="shutdown">
+		<property name="dataSourceClassName"
+			value="com.mysql.jdbc.jdbc2.optional.MysqlDataSource" />
+		<property name="connectionTestQuery" value="SELECT 1" />
+		<property name="dataSource.user" value="${jdbc.username}" />
+		<property name="dataSource.password" value="${jdbc.password}" />
+		<property name="dataSource.url" value="${jdbc.url}" />
+	</bean> -->
+	<!-- sqlSessionFactory for Mybatis -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="mainDataSource" />
+		<!-- standard mybatis config file -->
+		<property name="configLocation" value="classpath:SqlMapConfig.xml" />
+		<!-- externalised mappers -->
+		<property name="mapperLocations" value="classpath:*-mapper.xml" />
+	</bean>
+	<!-- Camel component for MyBatis -->
+	<bean id="mybatis" class="org.apache.camel.component.mybatis.MyBatisComponent">
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
+
+
+</beans>
