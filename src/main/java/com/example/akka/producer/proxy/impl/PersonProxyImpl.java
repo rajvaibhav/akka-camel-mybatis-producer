@@ -73,6 +73,7 @@ public class PersonProxyImpl implements PersonProxy {
 	}
 
 	public void init() {
+		// to bind any component for example mybatis, we have bind actor system to camel
 		Camel camel = CamelExtension.get(actorSystem);
 		camelContext = camel.context();
 		camelContext.addComponent("mybatis", mybatis);
