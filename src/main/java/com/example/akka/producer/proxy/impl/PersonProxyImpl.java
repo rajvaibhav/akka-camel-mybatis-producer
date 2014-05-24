@@ -45,7 +45,7 @@ public class PersonProxyImpl implements PersonProxy {
 
 	public Future<List<Person>> getAllPersons() {
 
-		final Future<Object> futureResp = Patterns.ask(personProducerActor, new Person(null, null, null, "someone@abcd.com"),
+		final Future<Object> futureResp = Patterns.ask(personProducerActor, new Person(null, null, null, "rajvaibhav.raj@gmail.com"),
 				timeout);
 
 		return futureResp.flatMap(new Mapper<Object, Future<List<Person>>>() {
@@ -73,7 +73,11 @@ public class PersonProxyImpl implements PersonProxy {
 	}
 
 	public void init() {
-		// to bind any component for example mybatis, we have bind actor system to camel
+		/*to bind any component for example mybatis, we have bind actor system to camel*/
+		/*
+		 * Binding of a component with akka-camel context must be one time
+		 * activity.
+		 */
 		Camel camel = CamelExtension.get(actorSystem);
 		camelContext = camel.context();
 		camelContext.addComponent("mybatis", mybatis);

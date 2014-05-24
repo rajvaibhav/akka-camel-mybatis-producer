@@ -26,8 +26,9 @@ http://camel.apache.org/schema/spring/camel-spring.xsd">
 		<constructor-arg value="30" />
 	</bean>
 	
-	<!-- <context:component-scan base-package="com.example.proxy.impl"/> -->
 	<bean id="personProxy" class="com.example.akka.producer.proxy.impl.PersonProxyImpl" init-method="init"/>
+	
+	
 	<!-- HikariCP configuration -->
 	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
 		<property name="maximumPoolSize" value="10" />
@@ -46,18 +47,11 @@ http://camel.apache.org/schema/spring/camel-spring.xsd">
 		<property name="poolName" value="springHikariCP" />
 	</bean>
 
+	<!-- Can be replaced by any datasource declaration. For ex DBCP -->
 	<bean id="mainDataSource" class="com.zaxxer.hikari.HikariDataSource">
 		<constructor-arg ref="hikariConfig" />
 	</bean>
-	<!-- <bean id="mainDataSource" class="com.zaxxer.hikari.HikariDataSource"
-		destroy-method="shutdown">
-		<property name="dataSourceClassName"
-			value="com.mysql.jdbc.jdbc2.optional.MysqlDataSource" />
-		<property name="connectionTestQuery" value="SELECT 1" />
-		<property name="dataSource.user" value="${jdbc.username}" />
-		<property name="dataSource.password" value="${jdbc.password}" />
-		<property name="dataSource.url" value="${jdbc.url}" />
-	</bean> -->
+	
 	<!-- sqlSessionFactory for Mybatis -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="mainDataSource" />
@@ -66,6 +60,8 @@ http://camel.apache.org/schema/spring/camel-spring.xsd">
 		<!-- externalised mappers -->
 		<property name="mapperLocations" value="classpath:*-mapper.xml" />
 	</bean>
+	
+	
 	<!-- Camel component for MyBatis -->
 	<bean id="mybatis" class="org.apache.camel.component.mybatis.MyBatisComponent">
 		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
